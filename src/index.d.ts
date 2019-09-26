@@ -144,6 +144,8 @@ interface FastImageStatic extends React.ComponentClass<FastImageProperties> {
         web: FastImage.cacheControl.web
     }
 
+    deleteImage(url: string): string
+
     preload(sources: FastImageSource[]): void
 }
 

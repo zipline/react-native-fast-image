@@ -25,6 +25,31 @@ class FastImageViewModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
+    public void deleteImage(final String url, final Promise promise) {
+        final Activity activity = getCurrentActivity();
+        if (activity == null) return;
+        Glide
+            .with(activity.getApplicationContext())
+            .asFile()
+            .load(url)
+            .listener(new RequestListener<File>() {
+                @Override
+                public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<File> target, boolean isFirstResource) {
+                    promise.reject(e);
+                }
+
+                @Override
+                public boolean onResourceReady(File resource, Object model, Target<File> target, DataSource dataSource, boolean isFirstResource) {
+                    String url = resource.getAbsolutePath();
+                    resource.delete();
+                    promise.resolve(url);
+                    return false;
+                }
+            })
+        .submit();
+    }
+
+    @ReactMethod
     public void preload(final ReadableArray sources) {
         final Activity activity = getCurrentActivity();
         if (activity == null) return;
@@ -36,19 +61,19 @@ class FastImageViewModule extends ReactContextBaseJavaModule {
                     final FastImageSource imageSource = FastImageViewConverter.getImageSource(activity, source);
 
                     Glide
-                            .with(activity.getApplicationContext())
-                            // This will make this work for remote and local images. e.g.
-                            //    - file:///
-                            //    - content://
-                            //    - res:/
-                            //    - android.resource://
-                            //    - data:image/png;base64
-                            .load(
-                                    imageSource.isBase64Resource() ? imageSource.getSource() :
-                                    imageSource.isResource() ? imageSource.getUri() : imageSource.getGlideUrl()
-                            )
-                            .apply(FastImageViewConverter.getOptions(activity, imageSource, source))
-                            .preload();
+                        .with(activity.getApplicationContext())
+                        // This will make this work for remote and local images. e.g.
+                        //    - file:///
+                        //    - content://
+                        //    - res:/
+                        //    - android.resource://
+                        //    - data:image/png;base64
+                        .load(
+                            imageSource.isBase64Resource() ? imageSource.getSource() :
+                            imageSource.isResource() ? imageSource.getUri() : imageSource.getGlideUrl()
+                        )
+                        .apply(FastImageViewConverter.getOptions(activity, imageSource, source))
+                        .preload();
                 }
             }
         });
