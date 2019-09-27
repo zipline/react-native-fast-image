@@ -44,6 +44,7 @@ class FastImageViewModule extends ReactContextBaseJavaModule {
                 @Override
                 public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<File> target, boolean isFirstResource) {
                     promise.reject(e);
+                    return false;
                 }
 
                 @Override
